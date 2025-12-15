@@ -102,13 +102,13 @@ const StickyCard = () => {
 					key={idx}
 				>
 					<div className="sticky-card-index flex-1 lg:flex-2">
-						<h1 className="text-[7rem] font-extrabold tracking-[-0.35rem] leading-[1.1]">
+						<h1 className="text-[4rem] md:text-[7rem] font-extrabold tracking-[-0.35rem] leading-[1.1]">
 							{cardData.index}
 						</h1>
 					</div>
-					<div className="sticky-card-content flex-4 pt-[1.5rem]">
+					<div className="sticky-card-content flex-4 md:pt-[1.5rem]">
 						<div className="sticky-card-content-wrapper flex w-full flex-col gap-[1.5rem] lg:w-9/12">
-							<h1 className="sticky-card-header text-[5rem] font-extrabold tracking-[-0.35rem] leading-[1.1] w-9/12">
+							<h1 className="sticky-card-header text-[4rem] md:text-[5rem] font-extrabold tracking-[-0.35rem] leading-[1.1] w-9/12">
 								{cardData.title}
 							</h1>
 
@@ -119,7 +119,7 @@ const StickyCard = () => {
 							<div className="sticky-card-copy flex-1 flex-col gap-[0.5rem] lg:flex-row lg:gap-[1.5rem]">
 								<div className="sticky-card-copy-title flex-2">
 									<div className="sticky-card-copy-description flex-4">
-										<p className="text-[1.125rem] font-medium">
+										<p className="text-[1rem] md:text-[1.125rem] font-medium">
 											{cardData.description}
 										</p>
 										<Button
