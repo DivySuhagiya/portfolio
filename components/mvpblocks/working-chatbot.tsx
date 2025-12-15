@@ -1,7 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Bot, Copy, ArrowUp, ArrowDown, User, RefreshCcw } from "lucide-react";
+import {
+	Bot,
+	Copy,
+	ArrowUp,
+	ArrowDown,
+	User,
+	FileText,
+	Briefcase,
+	Code,
+	Sparkles,
+} from "lucide-react";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -13,9 +23,37 @@ import { DefaultChatTransport } from "ai";
 import { motion, AnimatePresence } from "framer-motion";
 import remarkGfm from "remark-gfm";
 
+// --- CONSTANTS: Suggested Prompts ---
+const SUGGESTED_PROMPTS = [
+	{
+		title: "Experience",
+		label: "What is Divy's background?",
+		action: "What is Divy's professional experience?",
+		icon: Briefcase,
+	},
+	{
+		title: "Resume",
+		label: "Can I see the CV?",
+		action: "Can I get Divy's resume?",
+		icon: FileText,
+	},
+	{
+		title: "Projects",
+		label: "Tell me about Last Call",
+		action: "Tell me about the Last Call game project.",
+		icon: Sparkles,
+	},
+	{
+		title: "Tech Stack",
+		label: "What are the core skills?",
+		action: "What is Divy's tech stack and skillset?",
+		icon: Code,
+	},
+];
+
 // --- 1. Custom Markdown Components ---
 const MarkdownComponents = {
-	// --- TABLE STYLING START ---
+	// ... (Your existing table/code styling remains exactly the same)
 	table: ({ children }: any) => (
 		<div className="my-6 w-full overflow-y-auto rounded-lg border border-neutral-200 shadow-sm">
 			<table className="w-full min-w-[300px] border-collapse text-sm">
@@ -42,9 +80,6 @@ const MarkdownComponents = {
 	td: ({ children }: any) => (
 		<td className="px-4 py-3 text-neutral-600 align-top">{children}</td>
 	),
-	// --- TABLE STYLING END ---
-
-	// Style Code Blocks
 	code: ({ node, inline, className, children, ...props }: any) => {
 		const match = /language-(\w+)/.exec(className || "");
 		const content = String(children).replace(/\n$/, "");
@@ -72,7 +107,6 @@ const MarkdownComponents = {
 				</div>
 			);
 		}
-		// Inline code styling
 		return (
 			<code
 				className="rounded-md bg-neutral-200/50 px-1.5 py-0.5 font-mono text-sm font-medium text-neutral-800"
@@ -82,7 +116,6 @@ const MarkdownComponents = {
 			</code>
 		);
 	},
-	// Style Lists
 	ul: ({ children }: any) => (
 		<ul className="ml-5 list-disc space-y-1 py-2 text-neutral-600 marker:text-neutral-400">
 			{children}
@@ -93,7 +126,6 @@ const MarkdownComponents = {
 			{children}
 		</ol>
 	),
-	// Style Headings
 	h1: ({ children }: any) => (
 		<h1 className="mb-4 mt-6 text-2xl font-bold tracking-tight text-neutral-900">
 			{children}
@@ -109,11 +141,9 @@ const MarkdownComponents = {
 			{children}
 		</h3>
 	),
-	// Style Paragraphs
 	p: ({ children }: any) => (
 		<p className="mb-4 leading-7 text-neutral-700 last:mb-0">{children}</p>
 	),
-	// Style Links
 	a: ({ href, children }: any) => (
 		<a
 			href={href}
@@ -123,6 +153,15 @@ const MarkdownComponents = {
 		>
 			{children}
 		</a>
+	),
+	img: ({ node, ...props }: any) => (
+		<span className="block my-4 overflow-hidden rounded-xl border border-neutral-200 shadow-sm">
+			<img
+				{...props}
+				className="w-full h-auto object-cover max-h-[300px]"
+				alt={props.alt || "Portfolio Image"}
+			/>
+		</span>
 	),
 };
 
@@ -202,7 +241,7 @@ export default function ModernChatbot() {
 
 	const isLoading = status === "submitted" || status === "streaming";
 
-	// --- NEW: Scroll Handler to toggle button visibility ---
+	// Scroll Logic
 	const handleScroll = () => {
 		if (scrollRef.current) {
 			const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
@@ -211,7 +250,6 @@ export default function ModernChatbot() {
 		}
 	};
 
-	// --- NEW: Manual Scroll to Bottom Function ---
 	const scrollToBottom = () => {
 		if (scrollRef.current) {
 			scrollRef.current.scrollTo({
@@ -222,7 +260,6 @@ export default function ModernChatbot() {
 		}
 	};
 
-	// Auto-scroll logic (Smart)
 	useEffect(() => {
 		const scrollContainer = scrollRef.current;
 		if (scrollContainer) {
@@ -238,7 +275,6 @@ export default function ModernChatbot() {
 		}
 	}, [messages]);
 
-	// Force scroll on new message (User sent)
 	useEffect(() => {
 		if (scrollRef.current) {
 			if (messages.length > 0) {
@@ -262,6 +298,16 @@ export default function ModernChatbot() {
 		[input, sendMessage]
 	);
 
+	// --- Handle clicking a suggestion ---
+	const handlePromptClick = useCallback(
+		(message: string) => {
+			startTimeRef.current = Date.now();
+			sendMessage({ parts: [{ type: "text", text: message }] });
+			setShowScrollButton(false);
+		},
+		[sendMessage]
+	);
+
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLTextAreaElement>) => {
 			if (event.key === "Enter" && !event.shiftKey) {
@@ -281,7 +327,6 @@ export default function ModernChatbot() {
 				}}
 			></div>
 
-			{/* Subtle Gradient Mesh */}
 			<div className="pointer-events-none absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-purple-50/50 to-transparent opacity-60 z-0" />
 
 			{/* --- HEADER --- */}
@@ -306,21 +351,43 @@ export default function ModernChatbot() {
 						<motion.div
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
-							className="mt-[10vh] flex flex-col items-center text-center"
+							className="mt-[5vh] flex flex-col items-center text-center"
 						>
-							<div className="mb-6 rounded-full border border-neutral-100 bg-white p-4 shadow-sm">
+							<div className="mb-6 h-24 w-24 rounded-full shadow-sm">
 								<img
-									src="/assets/robo.svg"
+									src="/portfolio.png"
 									alt="AI"
-									className="h-16 w-16 opacity-80"
+									className="h-full w-full rounded-full"
 								/>
 							</div>
 							<h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
 								How can I help you?
 							</h2>
-							<p className="mt-2 text-neutral-500">
-								I can explain Divy's projects, skills, or background.
+							<p className="mt-2 text-neutral-500 max-w-md">
+								Ask about Divy's projects, experience, or download his resume.
 							</p>
+
+							{/* --- SUGGESTED PROMPTS GRID --- */}
+							<div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
+								{SUGGESTED_PROMPTS.map((prompt, index) => (
+									<motion.button
+										key={prompt.title}
+										initial={{ opacity: 0, y: 10 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ delay: index * 0.1 }}
+										onClick={() => handlePromptClick(prompt.action)}
+										className="flex flex-col items-start gap-2 rounded-xl border border-neutral-200 bg-white p-4 text-left shadow-sm transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-md"
+									>
+										<div className="flex items-center gap-2 text-sm font-semibold text-neutral-800">
+											<prompt.icon className="h-4 w-4 text-purple-500" />
+											{prompt.title}
+										</div>
+										<div className="text-xs text-neutral-500">
+											{prompt.label}
+										</div>
+									</motion.button>
+								))}
+							</div>
 						</motion.div>
 					) : (
 						messages.map((m) => (
@@ -331,14 +398,12 @@ export default function ModernChatbot() {
 									m.role === "user" ? "justify-end" : "justify-start"
 								)}
 							>
-								{/* Avatar for AI only */}
 								{m.role !== "user" && (
 									<div className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm sm:flex">
 										<Bot className="h-5 w-5 text-primary" />
 									</div>
 								)}
 
-								{/* Message Bubble */}
 								<div
 									className={cn(
 										"relative max-w-[85%] rounded-3xl px-5 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[75%]",
@@ -372,7 +437,6 @@ export default function ModernChatbot() {
 										)}
 									</div>
 
-									{/* Actions / Meta for AI */}
 									{m.role !== "user" && (
 										<div className="mt-2 flex items-center gap-3 opacity-0 transition-opacity group-hover:opacity-100 peer-hover:opacity-100 hover:opacity-100">
 											<button
@@ -398,7 +462,6 @@ export default function ModernChatbot() {
 									)}
 								</div>
 
-								{/* Avatar for User only */}
 								{m.role === "user" && (
 									<div className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 sm:flex">
 										<User className="h-5 w-5 text-primary" />
@@ -434,7 +497,6 @@ export default function ModernChatbot() {
 			{/* Input Area - Sticky Bottom */}
 			<div className="sticky bottom-0 z-10 w-full bg-gradient-to-t from-background via-background/95 to-transparent pb-6 pt-2">
 				<div className="mx-auto max-w-3xl px-4 relative">
-					{/* --- NEW: Scroll To Bottom Button --- */}
 					<AnimatePresence>
 						{showScrollButton && (
 							<motion.button
@@ -464,7 +526,7 @@ export default function ModernChatbot() {
 					<AiInput
 						value={input}
 						onChange={(e) => setInput(e.target.value)}
-						onSubmit={handleSubmit}
+						onSubmit={() => handleSubmit()}
 						onKeyDown={handleKeyDown}
 						isLoading={isLoading}
 					/>

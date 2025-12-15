@@ -1,26 +1,95 @@
-import { portfolioData } from "@/lib/portfolio-data";
+import {
+	personalInfo,
+	skills,
+	projects,
+	experience,
+	currentFocus,
+} from "@/lib/portfolio-data";
 import { groq } from "@ai-sdk/groq";
 import { smoothStream, streamText, convertToModelMessages } from "ai";
 
 export const maxDuration = 30;
+
+const formatSkills = () => {
+	return Object.entries(skills)
+		.map(([category, items]) => `- ${category}: ${items.join(", ")}`)
+		.join("\n");
+};
+
+const formatProjects = () => {
+	return projects
+		.map(
+			(p) => `
+PROJECT: ${p.title}
+TAGLINE: ${p.tagline}
+TECH STACK: ${p.tech.join(", ")}
+DESCRIPTION: ${p.description}
+KEY FEATURES: ${p.detailedSections.map((s) => s.title).join(", ")}
+IMAGE_URL: ${
+				p.architectureImage
+			} (Use this exact URL if asked to show the project architecture or design)
+GITHUB: ${p.githubLink}
+Youtube: ${p.youtubeVideoLink}
+DEMO: ${p.demoLink || "Not available"}
+DetailLink: ${p.moreDetailLink || "Not available"}
+`
+		)
+		.join("\n---\n");
+};
+
+const formatExperience = () => {
+	return experience
+		.map(
+			(e) => `
+ROLE: ${e.role} at ${e.company}
+DATES: ${e.date}
+DETAILS: ${e.description}
+`
+		)
+		.join("\n");
+};
 
 export async function POST(req: Request) {
 	try {
 		const { messages } = await req.json();
 
 		const systemPrompt = `
-    You are Divy's "Digital Twin", an AI assistant on his portfolio website.
-    Your goal is to explain Divy's skills, projects, and background to recruiters or visitors.
+		You are the AI portfolio assistant for **${personalInfo.name}**.
+Your goal is to answer questions about Divy's skills, projects, and experience in a professional, technical, yet friendly tone.
 
-    HERE IS YOUR KNOWLEDGE BASE:
-    ${JSON.stringify(portfolioData, null, 2)}
+Here is your Knowledge Base:
 
-    GUIDELINES:
-    1. Answer as if you ARE Divy's representative. Use "He" when referring to Divy, or "I" if you are speaking as the AI interface.
-    2. Be concise. Don't dump the whole JSON. Only answer what is asked.
-    3. If asked about something not in the knowledge base (like his home address or password), say you don't have access to that info.
-    4. Tone: ${portfolioData.personality.tone}
-  `;
+=== PERSONAL INFO ===
+Name: ${personalInfo.name}
+Role: ${personalInfo.role}
+Bio: ${personalInfo.bio}
+Tagline: ${personalInfo.tagline}
+Socials: ${Object.values(personalInfo.socials).join(", ")}
+
+=== TECHNICAL SKILLS ===
+${formatSkills()}
+
+=== WORK EXPERIENCE ===
+${formatExperience()}
+
+=== CURRENT LEARNING FOCUS ===
+${currentFocus.map((c) => `- ${c.title}: ${c.description}`).join("\n")}
+
+=== PROJECTS (DEEP DIVES) ===
+${formatProjects()}
+
+=== INSTRUCTIONS ===
+1. **Be Concise:** Answer the user's question directly.
+2. **Be Technical:** If asked about a project, explain the tech stack and the "Thick Client" or "Agentic" architecture.
+3. **Images:** If the user asks to "see", "show", or "look at" a project (especially Last Call, Aether, or Nimbus), you MUST return the image using Markdown syntax.
+   - Format: ![Alt Text](IMAGE_URL_FROM_DATA)
+   - Do NOT make up image URLs. Only use the ones provided in the PROJECT data above.
+4. **Links:** If asked for code or a demo, provide the GitHub or Demo links from the project data and user still ask than give the more detail link.
+5. **RESUME / CV:** If the user asks for a "resume", "CV", "curriculum vitae", or "experience summary", you MUST provide this exact link:
+   [Download Divy's Resume](/resume.pdf)
+   (Do not make up a URL. Use exactly "/resume.pdf").
+6. **Context:** You are Divy's digital twin. Speak in the first person ("I built...", "My experience...") or third person ("Divy built...") depending on what feels natural, but first person is usually better for a portfolio bot.
+		`;
 
 		const result = streamText({
 			// Add your desired model here

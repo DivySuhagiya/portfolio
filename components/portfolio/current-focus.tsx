@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 const activities = [
 	{
 		id: "01",
-		title: "Building Last Call Game",
+		title: "Building AI Code Reviewer",
 		role: "Full Stack & AI Engineer",
 		description:
-			"Orchestrating multi-agent LLM workflows to create infinite murder mystery plots. Pushing the boundaries of procedural generation.",
+			"Developing an autonomous agent similar to CodeRabbit. It integrates with GitHub to analyze Pull Requests, detect bugs, and suggest code optimizations in real-time.",
 		image:
-			"https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
+			"https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop", // Coding/Matrix vibe
 	},
 	{
 		id: "02",
@@ -26,12 +26,12 @@ const activities = [
 	},
 	{
 		id: "03",
-		title: "Reading System Design",
-		role: "Continuous Learning",
+		title: "Mastering Distributed Systems",
+		role: "Backend Engineering",
 		description:
-			"Currently reading 'Designing Data-Intensive Applications' to better understand distributed systems and scalability patterns.",
+			"Learning the migration strategies from Monolith to Microservices. Deep diving into scalable backend concepts using Redis, Kafka, and event-driven architectures.",
 		image:
-			"https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2112&auto=format&fit=crop",
+			"https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop", // Server/Network vibe
 	},
 ];
 
@@ -129,11 +129,11 @@ export default function CurrentFocus() {
 					</div>
 				</div>
 				{/* Bottom Button - Styled like the "Read more" pill */}
-				<div className="mt-12 flex justify-center items-center pl-10">
+				{/* <div className="mt-12 flex justify-center items-center pl-10">
 					<button className="rounded-full bg-neutral-100 px-8 py-3 text-sm font-medium text-neutral-600 transition-all hover:bg-neutral-200 active:scale-95">
 						Read more about me
 					</button>
-				</div>
+				</div> */}
 			</div>
 		</section>
 	);

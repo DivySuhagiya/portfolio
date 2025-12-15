@@ -4,17 +4,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Terminal, Cpu, ArrowDown } from "lucide-react";
+import { Terminal, Cpu, ArrowDown, Copy, Check, FileText } from "lucide-react"; // Changed icons for better clarity
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import CurrentFocus from "@/components/portfolio/current-focus";
 import StickyCard from "@/components/portfolio/StickyCard";
-import { skills } from "@/lib/portfolio-data";
+import { skills } from "@/lib/portfolio-data"; // Assuming personalInfo has your email
 import ContactUs from "@/components/mvpblocks/contact-us";
+import { useState } from "react";
 
-// 1. The Wavy Line (for the Name)
+
+// 1. Functional Copy Email Button
+const CopyEmailButton = () => {
+	const [copied, setCopied] = useState(false);
+	const email = "divysuhagiya100@gmail.com";
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(email);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+	};
+
+	return (
+		<Button
+			variant="outline"
+			onClick={handleCopy}
+			className="hidden md:flex rounded-full border-purple-200 hover:bg-purple-50 hover:text-purple-700 gap-2 transition-all duration-300 w-32"
+		>
+			{copied ? <Check size={16} /> : <Copy size={16} />}
+			{copied ? "Copied!" : "Copy Email"}
+		</Button>
+	);
+};
+
+// 2. The Wavy Line (for the Name)
 const SquigglyLine = () => (
 	<svg
 		className="absolute top-full left-0 w-full h-3 -mt-1 text-purple-500"
@@ -33,7 +58,7 @@ const SquigglyLine = () => (
 	</svg>
 );
 
-// 2. The Marker Stroke (for "Intelligent Systems")
+// 3. The Marker Stroke (for "Intelligent Systems")
 const MarkerUnderline = () => (
 	<svg
 		className="absolute top-full left-0 w-full h-4 -mt-2 -z-10"
@@ -54,7 +79,7 @@ const MarkerUnderline = () => (
 	</svg>
 );
 
-// 3. The Box
+// 4. The Box
 const RoughBox = () => (
 	<svg
 		className="absolute -top-1 -left-2 w-[calc(100%+16px)] h-[calc(100%+12px)] -z-10"
@@ -74,29 +99,7 @@ const RoughBox = () => (
 	</svg>
 );
 
-// --- Styled Components ---
-
-// 1. The Animated Highlight
-const TechHighlight = ({
-	children,
-	delay = 0,
-}: {
-	children: React.ReactNode;
-	delay?: number;
-}) => (
-	<span className="relative inline-block px-1">
-		<span className="relative z-10">{children}</span>
-		<motion.span
-			initial={{ width: "0%" }}
-			whileInView={{ width: "100%" }}
-			viewport={{ once: true }}
-			transition={{ duration: 0.8, delay, ease: "circOut" }}
-			className="absolute bottom-1 left-0 h-[0.3em] w-full origin-left rounded-sm bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 opacity-70 -z-10 mix-blend-multiply"
-		/>
-	</span>
-);
-
-// 2. Section Heading
+// 5. Section Heading
 const SectionHeading = ({
 	children,
 	icon: Icon,
@@ -129,13 +132,8 @@ export default function StandardPortfolio() {
 			<header className="fixed top-0 z-50 w-full border-b border-neutral-100/80 bg-[#FDFCFB]/80 backdrop-blur-md">
 				<div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
 					<span className="text-lg font-bold tracking-tight">Divy.dev</span>
+
 					<nav className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-600">
-						<a
-							href="#work"
-							className="hover:text-neutral-900 transition-colors"
-						>
-							Work
-						</a>
 						<a
 							href="#skills"
 							className="hover:text-neutral-900 transition-colors"
@@ -143,13 +141,35 @@ export default function StandardPortfolio() {
 							Skills
 						</a>
 						<a
-							href="#about"
+							href="#work"
 							className="hover:text-neutral-900 transition-colors"
 						>
-							About
+							Work
+						</a>
+						<a
+							href="#contact"
+							className="hover:text-neutral-900 transition-colors"
+						>
+							Contact
 						</a>
 					</nav>
+
 					<div className="flex items-center gap-4">
+						{/* 1. Copy Email Button */}
+						<CopyEmailButton />
+
+						{/* 2. Resume Button - Ensure you put a file named 'resume.pdf' in your 'public' folder */}
+						<a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+							<Button
+								variant="outline"
+								className="hidden md:flex rounded-full border-purple-200 hover:bg-purple-50 hover:text-purple-700 gap-2"
+							>
+								<FileText size={16} />
+								Resume
+							</Button>
+						</a>
+
+						{/* 3. AI Chat Button */}
 						<Link href="/chat">
 							<Button
 								variant="outline"
@@ -159,6 +179,8 @@ export default function StandardPortfolio() {
 								Talk to AI Version
 							</Button>
 						</Link>
+
+						{/* Mobile AI Link */}
 						<Link
 							href="/chat"
 							className="md:hidden text-sm font-medium text-purple-600"
@@ -179,15 +201,14 @@ export default function StandardPortfolio() {
 						className="mb-8 relative h-24 w-24 overflow-hidden rounded-full border-2 border-white shadow-lg ring-1 ring-purple-100"
 					>
 						<img
-							src="https://i.postimg.cc/j5dW4vFd/Mvpblocks.webp"
+							src="/portfolio.png"
 							alt="Divy"
-							className="h-full w-full object-cover"
+							className="h-full w-full object-cover mt-1"
 						/>
 					</motion.div>
 
 					{/* Main Text Content */}
 					<h1 className="text-4xl font-bold leading-[1.4] tracking-tight text-neutral-800 md:text-6xl">
-						{/* Line 1: Hi I am Divy */}
 						<span className="block mb-2">
 							Hi{" "}
 							<span className="inline-block origin-bottom-right hover:animate-wave">
@@ -196,21 +217,19 @@ export default function StandardPortfolio() {
 							I am
 							<span className="relative inline-block mx-3 text-neutral-900">
 								Divy,
-								<SquigglyLine /> {/* The wavy line from the image */}
+								<SquigglyLine />
 							</span>
 							and I build
 						</span>
 
-						{/* Line 2: Impactful... */}
 						<span className="block mb-2">
 							<span className="relative inline-block whitespace-nowrap mr-3">
 								intelligent systems
-								<MarkerUnderline /> {/* The marker stroke */}
+								<MarkerUnderline />
 							</span>
 							that not only
 						</span>
 
-						{/* Line 3: Solve problems... */}
 						<span className="block mb-2">solve complex problems but are</span>
 						<span className="block">
 							scalable, efficient and
@@ -218,11 +237,9 @@ export default function StandardPortfolio() {
 								<span className="relative z-10 text-neutral-900">
 									innovative
 								</span>
-								<RoughBox /> {/* The box from the image */}
+								<RoughBox />
 							</span>
 						</span>
-
-						{/* Line 4: Scalable and Inclusive */}
 					</h1>
 
 					{/* Down Arrows */}
@@ -240,7 +257,7 @@ export default function StandardPortfolio() {
 
 				<CurrentFocus />
 
-				{/* --- Skills Section (Clean Pills) --- */}
+				{/* --- Skills Section --- */}
 				<section id="skills" className="mb-32 max-w-4xl mx-auto">
 					<SectionHeading icon={Cpu}>Technical Arsenal</SectionHeading>
 					<div className="grid gap-8 md:grid-cols-3">
@@ -272,14 +289,17 @@ export default function StandardPortfolio() {
 					</div>
 				</section>
 
-				{/* --- Featured Work Section (Cards with a technical touch) --- */}
+				{/* --- Featured Work Section --- */}
 				<section id="work" className="mb-32">
 					<SectionHeading icon={Terminal}>Featured Projects</SectionHeading>
 					<StickyCard />
 				</section>
 
-				{/* --- Simple Footer --- */}
-				<section className="text-center border-t border-neutral-100">
+				{/* --- Footer --- */}
+				<section
+					id="contact"
+					className="text-center border-t border-neutral-100"
+				>
 					<ContactUs />
 				</section>
 			</main>
