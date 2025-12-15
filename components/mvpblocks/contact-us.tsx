@@ -141,7 +141,7 @@ export default function ContactUs() {
 									<Button
 										type="submit"
 										disabled={isSubmitting}
-										className="w-full bg-gradient-to-b from-[#dabef5] to-[#bbadc8]/90 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
+										className="w-full bg-gradient-to-b from-[#bd77ff] to-[#bd77ff]/60 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]"
 									>
 										{isSubmitting ? (
 											<span className="flex items-center justify-center">
